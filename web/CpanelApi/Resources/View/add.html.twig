@@ -1,0 +1,20 @@
+<html>
+<body>
+
+{% if data %}
+<form action="" method="post">
+    <label for="username">username: </label> <input type="text" name="username"><br>
+    <label for="domain">domain: </label> <input type="text" name="domain"><br>
+    <label for="email">email: </label> <input type="text" name="email"><br>
+    <label for="plan">plan: </label> <br>
+    <select name="plan">
+        {% for value in data %}
+            <option value="{{ value }}">{{ value }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit">
+</form>
+{% endif %}
+
+</body>
+</html>

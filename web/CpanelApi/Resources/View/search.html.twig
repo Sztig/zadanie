@@ -1,0 +1,15 @@
+<html>
+<body>
+
+<table>
+{% for key, value in data %}
+    <tr>
+        <th>{{ value.user }}</th>
+        <th>{{ value.uid }}</th>
+        <th>{{ value.owner }}</th>
+    </tr>
+{% endfor %}
+</table>
+
+</body>
+</html>

@@ -1,6 +1,21 @@
 {
+    "name" : "sebastianjamula/cpanel-api",
+    "type" : "library",
     "require": {
+        "php" : ">=7.3",
         "guzzlehttp/guzzle": "^7.1",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+        "ext-json": "^7.4"
+    },
+    "authors": [
+        {
+            "name": "Sebastian Jamuła",
+            "email": "sebastianjamula@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\CpanelApi\\": "web/CpanelApi/Classes/"
+        }
     }
 }
