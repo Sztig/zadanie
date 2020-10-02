@@ -28,11 +28,21 @@
                         <input type="text" name="domain" class="form-control" aria-describedby="domain"
                                placeholder="Enter Domain">
                     </div>
+                    {% if errors %}
+                        <p>
+                            {{ errors.domainError }}
+                        </p>
+                    {% endif %}
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" name="email" class="form-control" aria-describedby="domain"
                                placeholder="Enter Email">
                     </div>
+                    {% if errors.emailError %}
+                        <div class="invalid-feedback">
+                            {{ errors.emailError }}
+                        </div>
+                    {% endif %}
                     <div class="form-group">
                         <label for="plan">Plan</label>
                         <select class="custom-select" name="plan">

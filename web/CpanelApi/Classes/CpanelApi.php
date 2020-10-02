@@ -43,30 +43,56 @@ class CpanelApi
 
     public function renderSearchList()
     {
-        $data = [];
-
         if (!empty($_POST)) {
             $user = new User();
             $user->setUsername($_POST['username']);
             $data = $this->apiHandler->fetchAccountsByUserName($user);
         }
 
-        return $this->template->render([
-            'data' => $data
-        ]);
+        if (isset($data['message'])) {
+            return $this->template->render([
+                'message' => $data
+            ]);
+        } else {
+            return $this->template->render([
+                'data' => $data
+            ]);
+        }
     }
 
     public function renderCreateAccount()
     {
         if (!empty($_POST)) {
-            $user = new User();
-            $user->setUsername($_POST['username']);
-            $user->setDomain($_POST['domain']);
-            $user->setEmail($_POST['email']);
-            $user->setPlan($_POST['plan']);
+            $errorArray = [];
 
-            $this->apiHandler->createAccount($user);
-            return $this->template->render();
+            if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) === false) {
+                $errorArray['emailError'] = 'Email is invalid!';
+            }
+
+
+            if (filter_var($_POST['domain'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+                $errorArray['domainError'] = 'Domain is invalid!';
+            }
+
+            if (!empty($errorArray)) {
+                $data = $this->apiHandler->getPackagesList();
+
+                return $this->template->render([
+                        'data' => $data,
+                        'errors' => $errorArray
+                    ]
+                );
+            } else {
+
+                $user = new User();
+                $user->setUsername($_POST['username']);
+                $user->setDomain($_POST['domain']);
+                $user->setEmail($_POST['email']);
+                $user->setPlan($_POST['plan']);
+
+                $this->apiHandler->createAccount($user);
+                return $this->template->render();
+            }
         } else {
             $data = $this->apiHandler->getPackagesList();
 
@@ -91,11 +117,8 @@ class CpanelApi
                 'data' => $data
             ]);
         } else {
-            $data = [
-                'message' => 'Something went wrong'
-            ];
             return $this->template->render([
-                'data' => $data
+                'data' => 'Something went wrong'
             ]);
         }
     }
@@ -105,21 +128,46 @@ class CpanelApi
         $uri = $_SERVER['REQUEST_URI'];
 
         if (!empty($_POST) && $uri !== '/edit') {
-            $oldUser = new User();
-            $oldUsername = str_replace('/edit/', "", $_POST['oldUsername']);
-            $oldUser->setUsername($oldUsername);
+            $errorArray = [];
 
-            $newUser = new User();
-            $newUser->setUsername($_POST['username']);
-            $newUser->setEmail($_POST['email']);
-            $newUser->setPlan($_POST['plan']);
-            $newUser->setDomain($_POST['domain']);
+            if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) === false) {
+                $errorArray['emailError'] = 'Email is invalid!';
+            }
 
-            $data = $this->apiHandler->editUser($oldUser, $newUser);
 
-            return $this->template->render([
-                'data' => $data
-            ]);
+            if (filter_var($_POST['domain'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+                $errorArray['domainError'] = 'Domain is invalid!';
+            }
+
+            if (!empty($errorArray)) {
+                $pkgList = $this->apiHandler->getPackagesList();
+
+                $username = str_replace('/delete/', "", $uri);
+                $user = new User();
+                $user->setUsername($username);
+
+                return $this->template->render([
+                    'pkgList' => $pkgList,
+                    'oldUser' => $user,
+                    'errors' => $errorArray
+                ]);
+            } else {
+                $oldUser = new User();
+                $oldUsername = str_replace('/edit/', "", $_POST['oldUsername']);
+                $oldUser->setUsername($oldUsername);
+
+                $newUser = new User();
+                $newUser->setUsername($_POST['username']);
+                $newUser->setEmail($_POST['email']);
+                $newUser->setPlan($_POST['plan']);
+                $newUser->setDomain($_POST['domain']);
+
+                $data = $this->apiHandler->editUser($oldUser, $newUser);
+
+                return $this->template->render([
+                    'data' => $data
+                ]);
+            }
         } else if (empty($_POST)) {
             $pkgList = $this->apiHandler->getPackagesList();
 

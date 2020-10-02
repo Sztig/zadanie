@@ -157,9 +157,16 @@ class ApiHandler
             ];
         }
 
+        $userStatusCode =json_decode($response->getStatusCode());
         $userList = json_decode($response->getBody(), true);
 
-        return $userList['data']['acct'];
+        if ($userStatusCode === 200) {
+            return $userList['data']['acct'];
+        } else {
+            return [
+                'message' => 'Something went wrong'
+            ];
+        }
     }
 
     public function deleteAccount(User $user): array
