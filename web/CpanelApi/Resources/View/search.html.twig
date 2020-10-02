@@ -1,15 +1,47 @@
-<html>
-<body>
+{% extends 'base.html.twig' %}
 
-<table>
-{% for key, value in data %}
-    <tr>
-        <th>{{ value.user }}</th>
-        <th>{{ value.uid }}</th>
-        <th>{{ value.owner }}</th>
-    </tr>
-{% endfor %}
-</table>
+{% block body %}
+    <body>
 
-</body>
-</html>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="" id="navSearch">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" id="navAdd">Add</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Username</th>
+            <th scope="col">Email</th>
+            <th scope="col">Domain</th>
+            <th scope="col">Plan</th>
+            <th scope="col">Delete</th>
+            <th scope="col">Edit</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for key, value in data %}
+            <tr>
+                <th scope="row">{{ value.uid }}</th>
+                <td>{{ value.user }}</td>
+                <td>{{ value.email }}</td>
+                <td>{{ value.domain }}</td>
+                <td>{{ value.plan }}</td>
+                <td><a class="btn btn-primary" href="/delete/{{ value.user }}">Delete</a></td>
+                <td><a class="btn btn-primary" href="/edit/{{ value.user }}">Edit</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </body>
+
+{% endblock %}

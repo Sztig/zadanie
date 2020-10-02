@@ -9,16 +9,24 @@ $twig = new Twig\Environment($loader, [
     'debug' => true
 ]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
-$URI = $_SERVER['REQUEST_URI'];
 
-$CpanelApi = new CpanelApi($twig, $URI);
+$CpanelApi = new CpanelApi($twig);
 
-switch ($URI) {
-    case '/lists':
+$uri = $_SERVER['REQUEST_URI'];
+
+
+switch (true) {
+    case $uri === '/lists':
         echo $CpanelApi->renderSearchList();
         break;
-    case '/add':
+    case $uri === '/add':
         echo $CpanelApi->renderCreateAccount();
+        break;
+    case (strpos($uri, '/delete')) !== false :
+        echo $CpanelApi->renderDeleteAccount();
+        break;
+    case (strpos($uri, '/edit')) !== false :
+        echo $CpanelApi->renderEditUser();
         break;
     default:
         echo $CpanelApi->renderDefaultPage();

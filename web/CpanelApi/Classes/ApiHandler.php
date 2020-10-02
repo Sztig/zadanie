@@ -13,8 +13,8 @@ class ApiHandler
      */
     protected $apiCredentials = [
         'user' => 'root',
-        'password' => 'password',
-        'token' => 'token'
+        'password' => '8>MDBVa]8$tL,4*R',
+        'token' => 'ESKXHH0D9YAHHGCL4HKB8PHGULSVTV2A'
     ];
 
     /**
@@ -33,6 +33,21 @@ class ApiHandler
     protected $createAccountUrl = 'https://rekrutacja.modulesgarden-demo.com:2087/json-api/createacct?api.version=1';
 
     /**
+     * @var string
+     */
+    protected $removeAccountUrl = 'https://rekrutacja.modulesgarden-demo.com:2087/json-api/removeacct';
+
+    /**
+     * @var string
+     */
+    protected $modifyUserUrl = 'https://rekrutacja.modulesgarden-demo.com:2087/json-api/modifyacct?api.version=1';
+
+    /**
+     * @var string
+     */
+    protected $modifyUserPackageUrl = 'https://rekrutacja.modulesgarden-demo.com:2087/json-api/changepackage?api.version=1';
+
+    /**
      * @var Client $client
      */
     protected $client;
@@ -42,15 +57,20 @@ class ApiHandler
         $this->client = new Client();
     }
 
-    public function createAccount(array $user): array
+    public function createAccount(User $user): array
     {
+        $username = $user->getUsername();
+        $domain = $user->getDomain();
+        $email = $user->getEmail();
+        $plan = $user->getPlan();
+
         try {
             $response = $this->client->post(
                 $this->createAccountUrl .
-                '&username=' . $user['username'] .
-                '&domain=' . $user['domain'] .
-                '&contactemail=' . $user['email'] .
-                '&plan=' . $user['plan'],
+                '&username=' . $username .
+                '&domain=' . $domain .
+                '&contactemail=' . $email .
+                '&plan=' . $plan,
                 [
                     'headers' => [
                         'Authorization' => 'whm ' . $this->apiCredentials['user'] . ':' . $this->apiCredentials['token']
@@ -59,11 +79,11 @@ class ApiHandler
             );
         } catch (RequestException $e) {
             return [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ];
         } catch (GuzzleException $e) {
             return [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ];
         }
         $jsonDecoded = json_decode($response->getStatusCode(), true);
@@ -92,11 +112,11 @@ class ApiHandler
             );
         } catch (RequestException $e) {
             return [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ];
         } catch (GuzzleException $e) {
             return [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ];
         }
 
@@ -113,8 +133,10 @@ class ApiHandler
         return $pkgList;
     }
 
-    public function fetchAccountsByUserNameFromApi(string $username): array
+    public function fetchAccountsByUserName(User $user): array
     {
+        $username = $user->getUsername();
+
         try {
             $response = $this->client->post(
                 $this->accountsListSearchUrl .
@@ -128,17 +150,109 @@ class ApiHandler
             );
         } catch (RequestException $e) {
             return [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ];
         } catch (GuzzleException $e) {
             return [
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ];
         }
 
-        $jsonDecoded = json_decode($response->getBody(), true);
+        $userList = json_decode($response->getBody(), true);
 
-        return $jsonDecoded['data']['acct'];
+        return $userList['data']['acct'];
     }
 
+    public function deleteAccount(User $user): array
+    {
+        $username = $user->getUsername();
+
+        try {
+            $response = $this->client->post(
+                $this->removeAccountUrl .
+                '?user=' . $username,
+                [
+                    'headers' => [
+                        'Authorization' => 'whm ' . $this->apiCredentials['user'] . ':' . $this->apiCredentials['token']
+                    ]
+                ]
+            );
+        } catch (RequestException $e) {
+            return [
+                'message' => $e->getMessage()
+            ];
+        } catch (GuzzleException $e) {
+            return [
+                'message' => $e->getMessage()
+            ];
+        }
+
+        $statusCode = json_decode($response->getStatusCode());
+
+        if ($statusCode === 200) {
+            return [
+                'message' => 'Account has been removed'
+            ];
+        } else {
+            return [
+                'message' => 'Something went wrong'
+            ];
+        }
+    }
+
+    public function editUser(User $oldUser, User $newUser): array
+    {
+        $oldUsername = $oldUser->getUsername();
+
+        $newUsername = $newUser->getUsername();
+        $domain = $newUser->getDomain();
+        $email = $newUser->getEmail();
+        $plan = $newUser->getPlan();
+
+        try {
+            $userResponse = $this->client->post(
+                $this->modifyUserUrl .
+                '&user=' . $oldUsername .
+                '&contactemail=' . $email .
+                '&DNS=' . $domain .
+                '&newuser=' . $newUsername ,
+                [
+                    'headers' => [
+                        'Authorization' => 'whm ' . $this->apiCredentials['user'] . ':' . $this->apiCredentials['token']
+                    ]
+                ]
+            );
+            $pkgResponse = $this->client->post(
+                $this->modifyUserPackageUrl .
+                '&user=' . $newUsername .
+                '&pkg=' . $plan,
+                [
+                    'headers' => [
+                        'Authorization' => 'whm ' . $this->apiCredentials['user'] . ':' . $this->apiCredentials['token']
+                    ]
+                ]
+            );
+        } catch (RequestException $e) {
+            return [
+                'message' => $e->getMessage()
+            ];
+        } catch (GuzzleException $e) {
+            return [
+                'message' => $e->getMessage()
+            ];
+        }
+
+        $accountStatusCode = json_decode($userResponse->getStatusCode());
+        $pkgStatusCode = json_decode($pkgResponse->getStatusCode());
+
+        if ($accountStatusCode === 200 && $pkgStatusCode === 200) {
+            return [
+                'message' => 'Account has been modified'
+            ];
+        } else {
+            return [
+                'message' => 'Something went wrong'
+            ];
+        }
+    }
 }

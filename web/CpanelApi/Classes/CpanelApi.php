@@ -21,14 +21,19 @@ class CpanelApi
     protected $apiHandler;
 
     /**
+     * @var User $user
+     */
+    protected $user;
+
+    /**
      * CpanelApi constructor.
      * @param Environment $twig
      * @param string $URI
      */
-    public function __construct($twig, $URI)
+    public function __construct($twig)
     {
         $this->apiHandler = new ApiHandler();
-        $this->loadTemplate($twig, $URI);
+        $this->loadTemplate($twig);
     }
 
     public function renderDefaultPage()
@@ -41,8 +46,9 @@ class CpanelApi
         $data = [];
 
         if (!empty($_POST)) {
-            $username = $_POST['username'];
-            $data = $this->apiHandler->fetchAccountsByUserNameFromApi($username);
+            $user = new User();
+            $user->setUsername($_POST['username']);
+            $data = $this->apiHandler->fetchAccountsByUserName($user);
         }
 
         return $this->template->render([
@@ -52,15 +58,18 @@ class CpanelApi
 
     public function renderCreateAccount()
     {
-        $data = [];
-
         if (!empty($_POST)) {
-            $user = $_POST;
-            $this->apiHandler->createAccount($user);
+            $user = new User();
+            $user->setUsername($_POST['username']);
+            $user->setDomain($_POST['domain']);
+            $user->setEmail($_POST['email']);
+            $user->setPlan($_POST['plan']);
 
+            $this->apiHandler->createAccount($user);
             return $this->template->render();
         } else {
             $data = $this->apiHandler->getPackagesList();
+
             return $this->template->render([
                     'data' => $data
                 ]
@@ -68,21 +77,91 @@ class CpanelApi
         }
     }
 
+    public function renderDeleteAccount()
+    {
+        $uri = $_SERVER['REQUEST_URI'];
+
+        if ($uri !== '/delete') {
+            $username = str_replace('/delete/', "", $uri);
+            $user = new User();
+            $user->setUsername($username);
+
+            $data = $this->apiHandler->deleteAccount($user);
+            return $this->template->render([
+                'data' => $data
+            ]);
+        } else {
+            $data = [
+                'message' => 'Something went wrong'
+            ];
+            return $this->template->render([
+                'data' => $data
+            ]);
+        }
+    }
+
+    public function renderEditUser()
+    {
+        $uri = $_SERVER['REQUEST_URI'];
+
+        if (!empty($_POST) && $uri !== '/edit') {
+            $oldUser = new User();
+            $oldUsername = str_replace('/edit/', "", $_POST['oldUsername']);
+            $oldUser->setUsername($oldUsername);
+
+            $newUser = new User();
+            $newUser->setUsername($_POST['username']);
+            $newUser->setEmail($_POST['email']);
+            $newUser->setPlan($_POST['plan']);
+            $newUser->setDomain($_POST['domain']);
+
+            $data = $this->apiHandler->editUser($oldUser, $newUser);
+
+            return $this->template->render([
+                'data' => $data
+            ]);
+        } else if (empty($_POST)) {
+            $pkgList = $this->apiHandler->getPackagesList();
+
+            $username = str_replace('/delete/', "", $uri);
+            $user = new User();
+            $user->setUsername($username);
+
+            return $this->template->render([
+                'pkgList' => $pkgList,
+                'oldUser' => $user
+            ]);
+        } else {
+            return $this->template->render([
+                'message' => 'something went wrong',
+            ]);
+        }
+
+
+    }
+
     /**
      * @param Environment $twig
-     * @param string $URI
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    protected function loadTemplate($twig, $URI): void
+    protected function loadTemplate($twig): void
     {
-        switch ($URI) {
-            case '/lists':
+        $uri = $_SERVER['REQUEST_URI'];
+
+        switch (true) {
+            case $uri === '/lists':
                 $this->template = $twig->load('search.html.twig');
                 break;
-            case '/add':
+            case $uri === '/add':
                 $this->template = $twig->load('add.html.twig');
+                break;
+            case (strpos($uri, '/delete')) !== false:
+                $this->template = $twig->load('delete.html.twig');
+                break;
+            case (strpos($uri, '/edit')) !== false:
+                $this->template = $twig->load('edit.html.twig');
                 break;
             default:
                 $this->template = $twig->load('index.html.twig');

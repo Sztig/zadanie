@@ -13,17 +13,8 @@
             </ul>
         </div>
     </nav>
-    <div class="d-flex justify-content-center">
-        <div class="d-inline-flex p-2">
-            <form action="lists" method="post">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" name="username" class="form-control" aria-describedby="Username"
-                           placeholder="Enter Username">
-                </div>
-                <button type="submit" class="btn btn-primary">Search</button>
-            </form>
-        </div>
-    </div>
+    {% if data %}
+        <p>{{ data.message }}</p>
+    {% endif %}
     </body>
 {% endblock %}

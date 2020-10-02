@@ -13,10 +13,11 @@
             </ul>
         </div>
     </nav>
-    {% if data %}
+    {% if pkgList and oldUser %}
         <div class="d-flex justify-content-center mt-2">
             <div class="d-inline-flex">
                 <form action="" method="post">
+                    <input type="hidden" id="oldUsername" name="oldUsername" value="{{ oldUser.username }}">
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" name="username" class="form-control" aria-describedby="Username"
@@ -35,7 +36,7 @@
                     <div class="form-group">
                         <label for="plan">Plan</label>
                         <select class="custom-select" name="plan">
-                            {% for value in data %}
+                            {% for value in pkgList %}
                                 <option value="{{ value }}">{{ value }}</option>
                             {% endfor %}
                         </select>
@@ -44,6 +45,12 @@
                 </form>
             </div>
         </div>
+    {% endif %}
+    {% if data %}
+        <p>{{ data.message }}</p>
+    {% endif %}
+    {% if message %}
+        <p>{{ message }}</p>
     {% endif %}
     </body>
 {% endblock %}
