@@ -28,7 +28,6 @@ class CpanelApi
     /**
      * CpanelApi constructor.
      * @param Environment $twig
-     * @param string $URI
      */
     public function __construct($twig)
     {
@@ -184,8 +183,6 @@ class CpanelApi
                 'message' => 'something went wrong',
             ]);
         }
-
-
     }
 
     /**
