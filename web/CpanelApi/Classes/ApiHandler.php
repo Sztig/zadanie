@@ -13,7 +13,7 @@ class ApiHandler
      */
     protected $apiCredentials = [
         'user' => 'root',
-        'token' => 'TOKEN'
+        'token' => 'ESKXHH0D9YAHHGCL4HKB8PHGULSVTV2A'
     ];
 
     /**

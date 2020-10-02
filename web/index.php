@@ -5,10 +5,7 @@ use App\CpanelApi\CpanelApi;
 require __DIR__ . '/../vendor/autoload.php';
 
 $loader = new Twig\Loader\FilesystemLoader('CpanelApi/Resources/View');
-$twig = new Twig\Environment($loader, [
-    'debug' => true
-]);
-$twig->addExtension(new \Twig\Extension\DebugExtension());
+$twig = new Twig\Environment($loader);
 
 $CpanelApi = new CpanelApi($twig);
 

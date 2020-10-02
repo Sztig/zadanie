@@ -64,12 +64,7 @@ class CpanelApi
         if (!empty($_POST)) {
             $errorArray = [];
 
-            if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) === false) {
-                $errorArray['emailError'] = 'Email is invalid!';
-            }
-
-
-            if (filter_var($_POST['domain'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+            if (preg_match('/([a-zA-Z0-9\-_]+\.)?[a-zA-Z0-9\-_]+\.[a-zA-Z]{2,5}/', $_POST['domain']) === 0) {
                 $errorArray['domainError'] = 'Domain is invalid!';
             }
 
@@ -82,7 +77,6 @@ class CpanelApi
                     ]
                 );
             } else {
-
                 $user = new User();
                 $user->setUsername($_POST['username']);
                 $user->setDomain($_POST['domain']);
@@ -129,12 +123,7 @@ class CpanelApi
         if (!empty($_POST) && $uri !== '/edit') {
             $errorArray = [];
 
-            if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) === false) {
-                $errorArray['emailError'] = 'Email is invalid!';
-            }
-
-
-            if (filter_var($_POST['domain'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+            if (preg_match('/([a-zA-Z0-9\-_]+\.)?[a-zA-Z0-9\-_]+\.[a-zA-Z]{2,5}/', $_POST['domain']) === 0) {
                 $errorArray['domainError'] = 'Domain is invalid!';
             }
 
