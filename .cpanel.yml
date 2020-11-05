@@ -1,5 +1,4 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/usernajsepic/public_html/
-    - touch success $DEPLOYPATH
+    - /home/usernajsepic/public_html/ echo "pog" >> success.txt
