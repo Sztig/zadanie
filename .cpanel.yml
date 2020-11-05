@@ -1,4 +1,4 @@
 ---
 deployment:
   tasks:
-    - /home/usernajsepic/public_html/ echo "pog" >> success.txt
+    - echo "pog" >> /home/usernajsepic/public_html/success.txt
